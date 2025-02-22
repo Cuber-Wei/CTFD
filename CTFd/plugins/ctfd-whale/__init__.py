@@ -1,6 +1,6 @@
 from __future__ import division  # Use floating point for math calculations
 
-# import fcntl
+import fcntl
 import json
 import random
 import uuid

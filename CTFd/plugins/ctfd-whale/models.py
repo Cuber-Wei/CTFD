@@ -20,6 +20,7 @@ from CTFd.utils import user as current_user
 from CTFd.utils.modes import get_model
 from CTFd.utils.uploads import delete_file
 from CTFd.utils.user import get_ip
+from CTFd.utils import get_config
 
 
 class DynamicValueDockerChallenge(BaseChallenge):
@@ -113,20 +114,20 @@ class DynamicValueDockerChallenge(BaseChallenge):
 
         solve_count = (
             Solves.query.join(Model, Solves.account_id == Model.id)
-                .filter(
+            .filter(
                 Solves.challenge_id == challenge.id,
                 Model.hidden == False,
                 Model.banned == False,
             )
-                .count()
+            .count()
         )
 
         # It is important that this calculation takes into account floats.
         # Hence this file uses from __future__ import division
         value = (
-                        ((challenge.minimum - challenge.initial) / (challenge.decay ** 2))
-                        * (solve_count ** 2)
-                ) + challenge.initial
+            ((challenge.minimum - challenge.initial) / (challenge.decay ** 2))
+            * (solve_count ** 2)
+        ) + challenge.initial
 
         value = math.ceil(value)
 
@@ -209,6 +210,7 @@ class DynamicValueDockerChallenge(BaseChallenge):
         submission = data["submission"].strip()
 
         Model = get_model()
+        freeze = get_config("freeze")
 
         solve = Solves(
             user_id=user.id,
@@ -219,7 +221,7 @@ class DynamicValueDockerChallenge(BaseChallenge):
         )
         db.session.add(solve)
 
-        if chal.dynamic_score == 1:
+        if chal.dynamic_score == 1 and not freeze:
 
             solve_count = (
                 Solves.query.join(Model, Solves.account_id == Model.id)
@@ -237,8 +239,9 @@ class DynamicValueDockerChallenge(BaseChallenge):
             # It is important that this calculation takes into account floats.
             # Hence this file uses from __future__ import division
             value = (
-                            ((chal.minimum - chal.initial) / (chal.decay ** 2)) * (solve_count ** 2)
-                    ) + chal.initial
+                ((chal.minimum - chal.initial) /
+                 (chal.decay ** 2)) * (solve_count ** 2)
+            ) + chal.initial
 
             value = math.ceil(value)
 

@@ -71,26 +71,3 @@ def unix_time_to_utc(t):
 
 def isoformat(dt):
     return dt.isoformat() + "Z"
-
-def blacklight_time():
-    """ Checks whether it's black time or not. """
-
-    has_blacklight = get_config("blacklight")
-    if has_blacklight == "false":
-        return False
-
-    end = get_config("end")
-
-    if end:
-        end = int(end)
-        start = end - 3600 # blacklight mode starts at 1h before CTF ends
-    else:
-        start = 0
-        end = 0
-
-    if start and end:
-        if start < time.time() < end:
-            # Within the two time bounds
-            return True
-
-    return False

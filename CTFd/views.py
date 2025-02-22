@@ -1,6 +1,5 @@
 import os
 
-from CTFd import blacklight
 from flask import Blueprint, abort
 from flask import current_app as app
 from flask import redirect, render_template, request, send_file, session, url_for
@@ -64,11 +63,9 @@ def setup():
             ctf_name = request.form.get("ctf_name")
             ctf_description = request.form.get("ctf_description")
             user_mode = request.form.get("user_mode", USERS_MODE)
-            has_blacklight = request.form.get("has_blacklight", "false")
             set_config("ctf_name", ctf_name)
             set_config("ctf_description", ctf_description)
             set_config("user_mode", user_mode)
-            set_config("has_blacklight", has_blacklight)
 
             # Style
             theme = request.form.get("ctf_theme", "core")

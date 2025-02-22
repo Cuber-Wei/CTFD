@@ -20,6 +20,7 @@ from CTFd.plugins.flags import get_flag_class
 from CTFd.utils.modes import get_model
 from CTFd.utils.uploads import delete_file
 from CTFd.utils.user import get_ip
+from CTFd.utils import get_config
 
 
 class DynamicValueChallenge(BaseChallenge):
@@ -46,36 +47,40 @@ class DynamicValueChallenge(BaseChallenge):
     )
 
     @classmethod
-    def calculate_value(cls, challenge):
+    def calculate_value(cls, challenge, update=False):
         Model = get_model()
+        freeze = get_config("freeze")
 
-        solve_count = (
-            Solves.query.join(Model, Solves.account_id == Model.id)
-            .filter(
-                Solves.challenge_id == challenge.id,
-                Model.hidden == False,
-                Model.banned == False,
+        value = challenge.value
+
+        if not freeze or update:
+            solve_count = (
+                Solves.query.join(Model, Solves.account_id == Model.id)
+                .filter(
+                    Solves.challenge_id == challenge.id,
+                    Model.hidden == False,
+                    Model.banned == False,
+                )
+                .count()
             )
-            .count()
-        )
 
-        # If the solve count is 0 we shouldn't manipulate the solve count to
-        # let the math update back to normal
-        if solve_count != 0:
-            # We subtract -1 to allow the first solver to get max point value
-            solve_count -= 1
+            # If the solve count is 0 we shouldn't manipulate the solve count to
+            # let the math update back to normal
+            if solve_count != 0:
+                # We subtract -1 to allow the first solver to get max point value
+                solve_count -= 1
 
-        # It is important that this calculation takes into account floats.
-        # Hence this file uses from __future__ import division
-        value = (
-            ((challenge.minimum - challenge.initial) / (challenge.decay ** 2))
-            * (solve_count ** 2)
-        ) + challenge.initial
+            # It is important that this calculation takes into account floats.
+            # Hence this file uses from __future__ import division
+            value = (
+                ((challenge.minimum - challenge.initial) / (challenge.decay ** 2))
+                * (solve_count ** 2)
+            ) + challenge.initial
 
-        value = math.ceil(value)
+            value = math.ceil(value)
 
-        if value < challenge.minimum:
-            value = challenge.minimum
+            if value < challenge.minimum:
+                value = challenge.minimum
 
         challenge.value = value
         db.session.commit()
@@ -145,7 +150,7 @@ class DynamicValueChallenge(BaseChallenge):
                 value = float(value)
             setattr(challenge, attr, value)
 
-        return DynamicValueChallenge.calculate_value(challenge)
+        return DynamicValueChallenge.calculate_value(challenge, update=True)
 
     @staticmethod
     def delete(challenge):
