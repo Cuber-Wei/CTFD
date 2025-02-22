@@ -1,0 +1,10 @@
+node_modules
+.conda
+.data
+__pycache__
+*.log
+*.db
+.ctfd_secret_key
+
+.vscode
+.idea
