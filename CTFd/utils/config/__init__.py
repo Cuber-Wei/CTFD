@@ -5,6 +5,7 @@ from flask import current_app as app
 
 from CTFd.utils import get_config
 from CTFd.utils.modes import TEAMS_MODE, USERS_MODE
+from CTFd.utils.dates import dark_time
 
 
 def ctf_name():
@@ -45,7 +46,7 @@ def is_scoreboard_frozen():
         if freeze < time.time():
             return True
 
-    return False
+    return False or dark_time()
 
 
 def can_send_mail():

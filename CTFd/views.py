@@ -86,9 +86,14 @@ def setup():
             # DateTime
             start = request.form.get("start")
             end = request.form.get("end")
+            dark_time = request.form.get("dark_time", "0")
             set_config("start", start)
             set_config("end", end)
             set_config("freeze", None)
+            print(type(end), type(dark_time))
+            # Convert minutes to seconds
+            set_config("dark_time", str(int(float(dark_time) * 60)))
+            set_config("dark-time", str(int(float(end) - float(dark_time)*60)))
 
             # Administration
             name = request.form["name"]
@@ -96,9 +101,11 @@ def setup():
             password = request.form["password"]
 
             name_len = len(name) == 0
-            names = Users.query.add_columns("name", "id").filter_by(name=name).first()
+            names = Users.query.add_columns(
+                "name", "id").filter_by(name=name).first()
             emails = (
-                Users.query.add_columns("email", "id").filter_by(email=email).first()
+                Users.query.add_columns(
+                    "email", "id").filter_by(email=email).first()
             )
             pass_short = len(password) == 0
             pass_long = len(password) > 128
@@ -175,8 +182,10 @@ def setup():
             set_config("mail_useauth", None)
 
             # Set up default emails
-            set_config("verification_email_subject", DEFAULT_VERIFICATION_EMAIL_SUBJECT)
-            set_config("verification_email_body", DEFAULT_VERIFICATION_EMAIL_BODY)
+            set_config("verification_email_subject",
+                       DEFAULT_VERIFICATION_EMAIL_SUBJECT)
+            set_config("verification_email_body",
+                       DEFAULT_VERIFICATION_EMAIL_BODY)
 
             set_config(
                 "successful_registration_email_subject",
@@ -190,9 +199,11 @@ def setup():
             set_config(
                 "user_creation_email_subject", DEFAULT_USER_CREATION_EMAIL_SUBJECT
             )
-            set_config("user_creation_email_body", DEFAULT_USER_CREATION_EMAIL_BODY)
+            set_config("user_creation_email_body",
+                       DEFAULT_USER_CREATION_EMAIL_BODY)
 
-            set_config("password_reset_subject", DEFAULT_PASSWORD_RESET_SUBJECT)
+            set_config("password_reset_subject",
+                       DEFAULT_PASSWORD_RESET_SUBJECT)
             set_config("password_reset_body", DEFAULT_PASSWORD_RESET_BODY)
 
             set_config(

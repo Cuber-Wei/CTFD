@@ -71,3 +71,30 @@ def unix_time_to_utc(t):
 
 def isoformat(dt):
     return dt.isoformat() + "Z"
+
+
+def dark_time():
+    """ Checks whether it's Dark Light time or not. """
+
+    end = get_config("end")
+    dark_time = get_config("dark_time")
+
+    if end:
+        end = int(end)
+    else:
+        end = 0
+    if dark_time:
+        dark_time = int(dark_time)
+        # if dark_time is 0, it is always light
+        if dark_time == 0:
+            return False
+    else:
+        # if dark_time is not set, it is always light
+        return False
+
+    if dark_time and end:
+        if (end - dark_time) < time.time() < end:
+            # Within the two time bounds
+            return True
+
+    return False

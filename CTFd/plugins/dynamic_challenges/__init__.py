@@ -21,7 +21,7 @@ from CTFd.utils.modes import get_model
 from CTFd.utils.uploads import delete_file
 from CTFd.utils.user import get_ip
 from CTFd.utils import get_config
-
+from CTFd.utils.dates import dark_time
 
 class DynamicValueChallenge(BaseChallenge):
     id = "dynamic"  # Unique identifier used to register challenges
@@ -49,11 +49,11 @@ class DynamicValueChallenge(BaseChallenge):
     @classmethod
     def calculate_value(cls, challenge, update=False):
         Model = get_model()
-        freeze = get_config("freeze")
+        is_dark_time = dark_time()
 
         value = challenge.value
 
-        if not freeze or update:
+        if not is_dark_time or update:
             solve_count = (
                 Solves.query.join(Model, Solves.account_id == Model.id)
                 .filter(

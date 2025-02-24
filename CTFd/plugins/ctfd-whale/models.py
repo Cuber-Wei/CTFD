@@ -20,7 +20,7 @@ from CTFd.utils import user as current_user
 from CTFd.utils.modes import get_model
 from CTFd.utils.uploads import delete_file
 from CTFd.utils.user import get_ip
-from CTFd.utils import get_config
+from CTFd.utils.dates import dark_time
 
 
 class DynamicValueDockerChallenge(BaseChallenge):
@@ -210,7 +210,7 @@ class DynamicValueDockerChallenge(BaseChallenge):
         submission = data["submission"].strip()
 
         Model = get_model()
-        freeze = get_config("freeze")
+        is_dark_time = dark_time()
 
         solve = Solves(
             user_id=user.id,
@@ -221,7 +221,7 @@ class DynamicValueDockerChallenge(BaseChallenge):
         )
         db.session.add(solve)
 
-        if chal.dynamic_score == 1 and not freeze:
+        if chal.dynamic_score == 1 and not is_dark_time:
 
             solve_count = (
                 Solves.query.join(Model, Solves.account_id == Model.id)

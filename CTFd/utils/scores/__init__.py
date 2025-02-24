@@ -3,7 +3,7 @@ from sqlalchemy.sql.expression import union_all
 from CTFd.cache import cache
 from CTFd.models import Awards, Challenges, Solves, Teams, Users, db
 from CTFd.utils import get_config
-from CTFd.utils.dates import unix_time_to_utc
+from CTFd.utils.dates import unix_time_to_utc, dark_time
 from CTFd.utils.modes import get_model
 
 
@@ -49,6 +49,12 @@ def get_standings(count=None, admin=False):
     if not admin and freeze:
         scores = scores.filter(Solves.date < unix_time_to_utc(freeze))
         awards = awards.filter(Awards.date < unix_time_to_utc(freeze))
+
+    is_dark_time = dark_time()
+    if not admin and is_dark_time:
+        dark_time_unix = get_config("dark-time")
+        scores = scores.filter(Solves.date < unix_time_to_utc(dark_time_unix))
+        awards = awards.filter(Awards.date < unix_time_to_utc(dark_time_unix))
 
     """
     Combine awards and solves with a union. They should have the same amount of columns
@@ -143,6 +149,12 @@ def get_team_standings(count=None, admin=False):
     if not admin and freeze:
         scores = scores.filter(Solves.date < unix_time_to_utc(freeze))
         awards = awards.filter(Awards.date < unix_time_to_utc(freeze))
+    
+    is_dark_time = dark_time()
+    if not admin and is_dark_time:
+        dark_time_unix = get_config("dark-time")
+        scores = scores.filter(Solves.date < unix_time_to_utc(dark_time_unix))
+        awards = awards.filter(Awards.date < unix_time_to_utc(dark_time_unix))
 
     results = union_all(scores, awards).alias("results")
 
@@ -209,6 +221,12 @@ def get_user_standings(count=None, admin=False):
     if not admin and freeze:
         scores = scores.filter(Solves.date < unix_time_to_utc(freeze))
         awards = awards.filter(Awards.date < unix_time_to_utc(freeze))
+
+    is_dark_time = dark_time()
+    if not admin and is_dark_time:
+        dark_time_unix = get_config("dark-time")
+        scores = scores.filter(Solves.date < unix_time_to_utc(dark_time_unix))
+        awards = awards.filter(Awards.date < unix_time_to_utc(dark_time_unix))
 
     results = union_all(scores, awards).alias("results")
 

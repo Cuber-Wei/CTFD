@@ -9,6 +9,7 @@ from sqlalchemy.orm import column_property, validates
 from CTFd.cache import cache
 from CTFd.utils.crypto import hash_password
 from CTFd.utils.humanize.numbers import ordinalize
+from CTFd.utils.dates import dark_time
 
 db = SQLAlchemy()
 ma = Marshmallow()
@@ -296,6 +297,11 @@ class Users(db.Model):
         if freeze and admin is False:
             dt = datetime.datetime.utcfromtimestamp(freeze)
             solves = solves.filter(Solves.date < dt)
+        is_dark_time = dark_time()
+        if is_dark_time and admin is False:
+            dark_time_unix = get_config("dark-time")
+            dt = datetime.datetime.utcfromtimestamp(dark_time_unix)
+            solves = solves.filter(Solves.date < dt)
         return solves.all()
 
     def get_fails(self, admin=False):
@@ -304,6 +310,11 @@ class Users(db.Model):
         if freeze and admin is False:
             dt = datetime.datetime.utcfromtimestamp(freeze)
             fails = fails.filter(Fails.date < dt)
+        is_dark_time = dark_time()
+        if is_dark_time and admin is False:
+            dark_time_unix = get_config("dark-time")
+            dt = datetime.datetime.utcfromtimestamp(dark_time_unix)
+            solves = solves.filter(Fails.date < dt)
         return fails.all()
 
     def get_awards(self, admin=False):
@@ -312,6 +323,11 @@ class Users(db.Model):
         if freeze and admin is False:
             dt = datetime.datetime.utcfromtimestamp(freeze)
             awards = awards.filter(Awards.date < dt)
+        is_dark_time = dark_time()
+        if is_dark_time and admin is False:
+            dark_time_unix = get_config("dark-time")
+            dt = datetime.datetime.utcfromtimestamp(dark_time_unix)
+            solves = solves.filter(Awards.date < dt)
         return awards.all()
 
     def get_score(self, admin=False):
@@ -333,6 +349,13 @@ class Users(db.Model):
                 freeze = datetime.datetime.utcfromtimestamp(freeze)
                 user = user.filter(Solves.date < freeze)
                 award = award.filter(Awards.date < freeze)
+
+            is_dark_time = dark_time()
+            if is_dark_time:
+                dark_time_unix = get_config("dark-time")
+                dark_time_unix = datetime.datetime.utcfromtimestamp(dark_time_unix)
+                user = user.filter(Solves.date < dark_time_unix)
+                award = award.filter(Awards.date < dark_time_unix)
 
         user = user.group_by(Solves.user_id).first()
         award = award.first()
@@ -442,6 +465,11 @@ class Teams(db.Model):
         if freeze and admin is False:
             dt = datetime.datetime.utcfromtimestamp(freeze)
             solves = solves.filter(Solves.date < dt)
+        is_dark_time = dark_time()
+        if is_dark_time and admin is False:
+            dark_time_unix = get_config("dark-time")
+            dt = datetime.datetime.utcfromtimestamp(dark_time_unix)
+            solves = solves.filter(Solves.date < dt)
 
         return solves.all()
 
@@ -456,6 +484,11 @@ class Teams(db.Model):
         if freeze and admin is False:
             dt = datetime.datetime.utcfromtimestamp(freeze)
             fails = fails.filter(Fails.date < dt)
+        is_dark_time = dark_time()
+        if is_dark_time and admin is False:
+            dark_time_unix = get_config("dark-time")
+            dt = datetime.datetime.utcfromtimestamp(dark_time_unix)
+            solves = solves.filter(Fails.date < dt)
 
         return fails.all()
 
@@ -470,6 +503,11 @@ class Teams(db.Model):
         if freeze and admin is False:
             dt = datetime.datetime.utcfromtimestamp(freeze)
             awards = awards.filter(Awards.date < dt)
+        is_dark_time = dark_time()
+        if is_dark_time and admin is False:
+            dark_time_unix = get_config("dark-time")
+            dt = datetime.datetime.utcfromtimestamp(dark_time_unix)
+            solves = solves.filter(Awards.date < dt)
 
         return awards.all()
 

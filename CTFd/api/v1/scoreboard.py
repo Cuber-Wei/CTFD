@@ -3,7 +3,7 @@ from flask_restplus import Namespace, Resource
 from CTFd.cache import cache, make_cache_key
 from CTFd.models import Awards, Solves, Teams
 from CTFd.utils import get_config
-from CTFd.utils.dates import isoformat, unix_time_to_utc
+from CTFd.utils.dates import isoformat, unix_time_to_utc, dark_time
 from CTFd.utils.decorators.visibility import (
     check_account_visibility,
     check_score_visibility,
@@ -84,6 +84,13 @@ class ScoreboardDetail(Resource):
         if freeze:
             solves = solves.filter(Solves.date < unix_time_to_utc(freeze))
             awards = awards.filter(Awards.date < unix_time_to_utc(freeze))
+
+        is_dark_time = dark_time()
+
+        if is_dark_time:
+            dark_time_unix = get_config("dark-time")
+            solves = solves.filter(Solves.date < unix_time_to_utc(dark_time_unix))
+            awards = awards.filter(Awards.date < unix_time_to_utc(dark_time_unix))
 
         solves = solves.all()
         awards = awards.all()

@@ -1,6 +1,6 @@
 <div role="tabpanel" class="tab-pane config-section" id="ctftime">
 	<form method="POST" autocomplete="off" class="w-100">
-		<ul class="nav nav-tabs mb-3">
+		<ul class="nav nav-tabs mb-4">
 			<li class="nav-item">
 				<a class="nav-link active" href="#start-date" aria-controls="start-date" role="tab" data-toggle="tab">
 					Start Time
@@ -14,6 +14,11 @@
 			<li class="nav-item">
 				<a class="nav-link" href="#freeze-date" aria-controls="freeze-date" role="tab" data-toggle="tab">
 					Freeze Time
+				</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" href="#dark-time" aria-controls="dark-time" role="tab" data-toggle="tab">
+					Dark Light Time
 				</a>
 			</li>
 		</ul>
@@ -214,6 +219,21 @@
 						<input class="form-control" id='freeze' name='freeze' type='text'
 							   placeholder="Freeze Date (UTC timestamp)"
 							   {% if freeze is defined and freeze != None %}value="{{ freeze }}"{% endif %} readonly>
+					</div>
+				</div>
+			</div>
+			<div role="tabpanel" class="tab-pane" id="dark-time">
+				<div class="row" id="dark-time">
+					<div class="col-md-12">
+						<p>This is the time when the Dark Light Mode will last. Scoreboard will automatically
+							frozen and users won't be able to see the solves during the Dark Time Time.</p>
+						<sub class="text-right mb-3">* All time fields required</sub>
+					</div>
+	
+					<div class="form-group col-md-8">
+						<label for="dark_time">Last for(in seconds):</label>
+						<input class="form-control end-date" id='dark_time' name='dark_time' min="0" type='number' 
+							   {% if dark_time is defined and dark_time != None %}value="{{ dark_time }}"{% endif %}>
 					</div>
 				</div>
 			</div>

@@ -18,7 +18,7 @@ from CTFd.utils.config.visibility import (
     challenges_visible,
     scores_visible,
 )
-from CTFd.utils.dates import ctf_ended, ctf_paused, ctftime, isoformat, unix_time_to_utc
+from CTFd.utils.dates import ctf_ended, ctf_paused, ctftime, isoformat, unix_time_to_utc, dark_time
 from CTFd.utils.decorators import (
     admins_only,
     during_ctf_time_only,
@@ -259,6 +259,12 @@ class Challenge(Resource):
             freeze = get_config("freeze")
             if not is_admin() and freeze:
                 solves = solves.filter(Solves.date < unix_time_to_utc(freeze))
+
+            # Only show solves that happened before Dark Light  time if configured
+            is_dark_time = dark_time()
+            if not is_admin() and is_dark_time:
+                dark_time_unix = get_config("dark-time")
+                solves = solves.filter(Solves.date < unix_time_to_utc(dark_time_unix))
 
             solves = solves.count()
             response["solves"] = solves
@@ -523,6 +529,14 @@ class ChallengeSolves(Resource):
             preview = request.args.get("preview")
             if (is_admin() is False) or (is_admin() is True and preview):
                 dt = datetime.datetime.utcfromtimestamp(freeze)
+                solves = solves.filter(Solves.date < dt)
+
+        is_dark_time = dark_time()
+        if is_dark_time:
+            preview = request.args.get("preview")
+            dark_time_unix = get_config("dark-time")
+            if (is_admin() is False) or (is_admin() is True and preview):
+                dt = datetime.datetime.utcfromtimestamp(dark_time_unix)
                 solves = solves.filter(Solves.date < dt)
 
         for solve in solves:
